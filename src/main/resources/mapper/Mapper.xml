@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper   
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--suppress ALL -->
+<mapper namespace="com.bw.mapper.PatientMapper">
+    <resultMap id="ss" type="com.bw.bean.Patient">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="gender" property="gender"/>
+        <result column="birthday" property="birthday"/>
+        <result column="diagnosed" property="diagnosed"/>
+        <result column="diedate" property="diedate"/>
+        <collection property="disease" javaType="com.bw.bean.Disease">
+            <id column="did" property="did"/>
+            <result column="dname" property="dname"/>
+        </collection>
+    </resultMap>
+
+    <select id="select" parameterType="map" resultMap="ss">
+        select * from (select p.*,d.dname from patient p,disease d where p.did=d.did)a
+        <where>
+            <if test="name != null and name!=''">
+                name like '%${name}%'
+            </if>
+        </where>
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        insert into patient(name,gender,birthday, did, diagnosed,diedate) values (#{name},#{gender},#{birthday},#{disease.did},#{diagnosed},#{diedate})
+    </insert>
+
+    <select id="query" resultType="com.bw.bean.Disease">
+        select * from disease
+    </select>
+
+    <select id="find" resultMap="ss">
+        select * from patient where id = #{id}
+    </select>
+
+    <update id="update">
+        update patient set name=#{name},gender=#{gender},birthday=#{birthday},did=#{disease.did},diagnosed=#{diagnosed},diedate=#{diedate}
+        where id = #{id}
+    </update>
+</mapper>
